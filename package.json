@@ -1,0 +1,14 @@
+{
+	"name": "chatting-application",
+	"scripts": {
+		"start": "concurrently \"npm run dev --prefix client\" \"npm run start --prefix server\"",
+		"client": "npm run dev --prefix client",
+		"server": "nodemon server/app.js"
+	},
+	"devDependencies": {
+		"concurrently": "^8.2.2"
+	},
+	"dependencies": {
+		"nodemon": "^3.1.7"
+	}
+}
