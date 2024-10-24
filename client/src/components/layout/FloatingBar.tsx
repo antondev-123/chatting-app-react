@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 const FloatingNav = () => {
+  
   const floatingItemStyle =
     "rounded cursor-pointer py-1 px-2 border border-sky-600 bg-sky-600 w-fit";
   return (
