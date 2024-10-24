@@ -6,147 +6,149 @@ import {
   query,
   where,
   getDocs,
-  and,
-} from 'firebase/firestore'
-import { db } from '@/config/firebase'
-import { Message } from '@/models/message'
-import { User } from '@/models/user'
+  and
+} from "firebase/firestore";
+import { db } from "@/config/firebase";
+import { Message } from "@/models/message";
+import { User } from "@/models/user";
 
-const messagesCollection = collection(db, 'messages')
-const usersCollection = collection(db, 'users')
+const messagesCollection = collection(db, "messages");
+const usersCollection = collection(db, "users");
 
 const setupUser = async (email: string, name: string | null) => {
   try {
-    await addDoc(usersCollection, { email, name: name ?? '' })
+    await addDoc(usersCollection, { email, name: name ?? "" });
   } catch (error) {
-    console.log('Failed to create user: ', error)
+    console.log("Failed to create user: ", error);
   }
-}
+};
 
 export const fetchUsers = async () => {
-  const q = query(usersCollection, orderBy('name', 'asc'))
+  const q = query(usersCollection, orderBy("name", "asc"));
   try {
     const users = (await getDocs(q)).docs.map((doc) => ({
       id: doc.id,
-      ...doc.data(),
-    }))
-    return users as User[]
+      ...doc.data()
+    }));
+    return users as User[];
   } catch (error) {
-    console.log('Failed to fetch users: ', error)
+    console.log("Failed to fetch users: ", error);
   }
-}
+};
 
 export const confirmUser = async (email: string, name: string | null) => {
-  const q = query(usersCollection, where('email', '==', email))
+  const q = query(usersCollection, where("email", "==", email));
   try {
     const user = (await getDocs(q)).docs.map((doc) => ({
       id: doc.id,
-      ...doc.data(),
-    }))
+      ...doc.data()
+    }));
 
     if (!user.length) {
-      setupUser(email, name)
+      setupUser(email, name);
     }
 
-    return user[0] as User
+    return user[0] as User;
   } catch (error) {
-    console.log(`Failed to fetch user for ${email}: `, error)
+    console.log(`Failed to fetch user for ${email}: `, error);
   }
-}
+};
 
 export const subscribeToAllMessages = (
   setMessages: (messages: Message[]) => void,
-  setSingal?: ((arg: boolean) => void)
+  setSingal?: (arg: boolean) => void
 ) => {
-  const q = query(messagesCollection, orderBy('createdAt'))
+  const q = query(messagesCollection, orderBy("createdAt"));
   return onSnapshot(q, (snapshot) => {
     const messages = snapshot.docs
       .map((doc) => {
         return {
           id: doc.id,
-          ...doc.data(),
-        } as Message
+          ...doc.data()
+        } as Message;
       })
-      .filter((message) => message.receiver_email == '@all')
-    setMessages(messages)
+      .filter((message) => message.receiver_email == "@all");
+    setMessages(messages);
 
-    notifyMessage(messages[messages.length - 1].text, '/chatting/group')
-    
-    if(setSingal) {
-      setSingal(true)
+    notifyMessage(messages[messages.length - 1].text, "/chatting/group");
+
+    if (setSingal) {
+      setSingal(true);
     }
-
-  })
-}
+  });
+};
 
 export const subscribeToSpecificMessages = (
   setMessages: (messages: Message[]) => void,
   { sender, receiver }: { sender: string; receiver: string },
-  setSingal?: ((arg: boolean) => void)
+  setSingal?: (arg: boolean) => void
 ) => {
   const q = query(
     messagesCollection,
     and(
-      where('receiver_email', 'in', [sender, receiver]),
-      where('sender_email', 'in', [sender, receiver])
+      where("receiver_email", "in", [sender, receiver]),
+      where("sender_email", "in", [sender, receiver])
     ),
-    orderBy('createdAt')
-  )
+    orderBy("createdAt")
+  );
   return onSnapshot(q, (snapshot) => {
     const messages = snapshot.docs.map((doc) => {
       return {
         id: doc.id,
-        ...doc.data(),
-      } as Message
-    })
+        ...doc.data()
+      } as Message;
+    });
 
-    if(messages[messages.length -1].sender_email === receiver && setSingal) {
-      setSingal(true)
+    if (messages[messages.length - 1].sender_email === receiver && setSingal) {
+      setSingal(true);
     }
 
-    setMessages(messages)
+    setMessages(messages);
 
-    notifyMessage(messages[messages.length - 1].text, `/chatting/individual/${receiver}`)
-  })
-}
+    notifyMessage(
+      messages[messages.length - 1].text,
+      `/chatting/individual/${receiver}`
+    );
+  });
+};
 
 export const sendPublicMessage = async (
   messageObject: Omit<
     Message,
-    'id' | 'createdAt' | 'receiver_email' | 'receiver_name'
+    "id" | "createdAt" | "receiver_email" | "receiver_name"
   >
 ) => {
   try {
     await addDoc(messagesCollection, {
       ...messageObject,
       createdAt: new Date(),
-      receiver_email: '@all',
-      receiver_name: 'All Users',
-    })
+      receiver_email: "@all",
+      receiver_name: "All Users"
+    });
   } catch (error) {
-    console.error('Error sending message: ', error)
+    console.error("Error sending message: ", error);
   }
-}
+};
 
 export const sendPrivateMessage = async (
-  messageObject: Omit<Message, 'id' | 'createdAt'>
+  messageObject: Omit<Message, "id" | "createdAt">
 ) => {
   try {
     await addDoc(messagesCollection, {
       ...messageObject,
-      createdAt: new Date(),
-    })
+      createdAt: new Date()
+    });
   } catch (error) {
-    console.error('Error sending message: ', error)
+    console.error("Error sending message: ", error);
   }
-}
+};
 
 const notifyMessage = (msg: string, url: string) => {
-  if(!document.hasFocus()) {
-    const notification = new Notification(msg)
+  if (!document.hasFocus()) {
+    const notification = new Notification(msg);
     notification.onclick = (event) => {
-      event.preventDefault()
-      window.open(`${origin}${url}`)
-    }
+      event.preventDefault();
+      window.open(`${origin}${url}`);
+    };
   }
-}
+};

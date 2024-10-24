@@ -1,40 +1,40 @@
-import { createContext, ReactNode, useEffect, useState } from 'react'
+import { createContext, ReactNode, useEffect, useState } from "react";
 
 interface SignalContextType {
-  signal: boolean | null
-  setSignal: ((arg: boolean) => void)
+  signal: boolean | null;
+  setSignal: (arg: boolean) => void;
 }
 
 export const SignalContext = createContext<SignalContextType>({
   signal: null,
-  setSignal: () => {},
-})
+  setSignal: () => {}
+});
 
 const SignalProvider = ({ children }: { children: ReactNode }) => {
-  const [signal, setSignal] = useState(false)
+  const [signal, setSignal] = useState(false);
 
   useEffect(() => {
     let timout: NodeJS.Timeout | string | number | undefined;
 
     if (signal) {
       timout = setTimeout(() => {
-        setSignal(false)
-      }, 1000)
+        setSignal(false);
+      }, 1000);
     }
 
-    return () => clearTimeout(timout)
-  }, [signal])
+    return () => clearTimeout(timout);
+  }, [signal]);
 
   return (
     <SignalContext.Provider
       value={{
         signal,
-        setSignal,
+        setSignal
       }}
     >
       {children}
     </SignalContext.Provider>
-  )
-}
+  );
+};
 
-export default SignalProvider
+export default SignalProvider;
