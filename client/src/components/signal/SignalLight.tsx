@@ -1,6 +1,6 @@
-import styled from "styled-components"
+import styled from "styled-components";
 
-const Led = styled('div')`
+const Led = styled("div")`
   width: 10px;
   height: 10px;
   background-color: red;
@@ -9,19 +9,19 @@ const Led = styled('div')`
   animation-duration: 1s;
   animation-iteration-count: infinite;
   @keyframes Led {
-    0%   {
+    0% {
       outline: 2px solid red;
       outline-offset: 1px;
     }
-    20%   {
+    20% {
       outline: 2px solid red;
       outline-offset: 2px;
     }
-    40%  {
+    40% {
       outline: 2px solid red;
       outline-offset: 3px;
     }
-    60%  {
+    60% {
       outline: 2px solid red;
       outline-offset: 4px;
     }
@@ -30,13 +30,13 @@ const Led = styled('div')`
       outline-offset: 5px;
     }
   }
-`
+`;
 const SignalLight = () => {
   return (
     <div className="fixed top-20 right-6 rounded-full border border-slate-600 p-1">
       <Led></Led>
     </div>
-  )
-}
+  );
+};
 
-export default SignalLight
+export default SignalLight;
