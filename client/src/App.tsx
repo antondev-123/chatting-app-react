@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import AuthProvider from './context/AuthProvider'
 import SignalProvider from './context/SignalProvider'
 function App() {
-
+// It is App.js
   return (
     <ParallaxProvider>
       <AuthProvider>
